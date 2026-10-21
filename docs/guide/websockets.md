@@ -164,6 +164,7 @@ Both `defineRoom()` and `defineWebSocket()` support:
 - `onMessage(ctx, event)`: receives the validated client event
 - `onClose(ctx, details)`: receives `{ code, reason, wasClean }`
 - `onRequest(ctx)`: handles ordinary HTTP requests to the same path
+- `onAlarm(ctx, info)`: runs when an alarm set with `ctx.storage.setAlarm()` fires
 
 Void completes the WebSocket close handshake automatically. Use `onClose` for application cleanup;
 you do not need to close the socket again in this hook.

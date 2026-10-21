@@ -61,6 +61,11 @@ export type SocketContext<ServerEvent = unknown> = WebSocketBaseContext & {
   readonly socket: WebSocketConnection<ServerEvent>;
 };
 
+export type WebSocketAlarmContext = {
+  readonly env: CloudEnv['Bindings'];
+  readonly storage: DurableObjectStorage;
+};
+
 export type RoomDefinition<
   ClientSchema extends StandardSchemaV1 = StandardSchemaV1,
   ServerSchema extends StandardSchemaV1 = StandardSchemaV1,
@@ -89,6 +94,12 @@ export type RoomDefinition<
   onRequest?: (
     ctx: RoomContext<StandardSchemaV1.InferInput<ServerSchema>>,
   ) => MaybePromise<Response>;
+  onAlarm?: (
+    ctx: WebSocketAlarmContext & {
+      readonly room: RoomController<StandardSchemaV1.InferInput<ServerSchema>>;
+    },
+    info?: AlarmInvocationInfo,
+  ) => MaybePromise<void>;
 };
 
 export type SocketDefinition<
@@ -119,6 +130,7 @@ export type SocketDefinition<
   onRequest?: (
     ctx: SocketContext<StandardSchemaV1.InferInput<ServerSchema>>,
   ) => MaybePromise<Response>;
+  onAlarm?: (ctx: WebSocketAlarmContext, info?: AlarmInvocationInfo) => MaybePromise<void>;
 };
 
 export type AnyWebSocketDefinition = RoomDefinition | SocketDefinition;

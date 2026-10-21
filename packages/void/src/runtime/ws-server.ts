@@ -33,6 +33,7 @@ export type WebSocketDurableObjectInstance = {
     reason: string,
     wasClean: boolean,
   ): Promise<void>;
+  alarm?(alarmInfo?: AlarmInvocationInfo): Promise<void>;
 };
 
 export type WebSocketDurableObjectClass = {
@@ -417,6 +418,17 @@ export function createWebSocketDurableObject(
       await withAuthState(stored.authState ?? null, () =>
         definition.onClose?.(ctx as never, { code, reason, wasClean }),
       );
+    }
+
+    alarm(alarmInfo?: AlarmInvocationInfo): Promise<void> {
+      return withRuntimeEnv(this.env, () => {
+        const base = { env: this.env, storage: this.state.storage };
+        const ctx =
+          definition.__kind === 'room'
+            ? { ...base, room: createRoomController(this.state, definition.messages.server) }
+            : base;
+        return withAuthState(null, () => definition.onAlarm?.(ctx as never, alarmInfo));
+      });
     }
   }
 
