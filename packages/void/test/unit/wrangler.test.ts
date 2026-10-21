@@ -560,6 +560,28 @@ describe('syncWranglerBindings', () => {
     ]);
   });
 
+  it('adopts a Durable Object class that a user migration renamed into place', () => {
+    const userMigrations = [
+      { tag: 'v1', new_sqlite_classes: ['TimerRoom'] },
+      { tag: 'v2', renamed_classes: [{ from: 'TimerRoom', to: 'TimerRoomDurableObject' }] },
+    ];
+    setup('wrangler.jsonc', JSON.stringify({ name: 'test', migrations: userMigrations }));
+    const timerRoom = {
+      filePath: join(tmpDir, 'durable-objects', 'timer-room.ts'),
+      bindingName: 'TIMER_ROOM',
+      className: 'TimerRoomDurableObject',
+      migrationTag: 'void-durable-timer-room-v1',
+    };
+
+    expect(syncWranglerDurableObjects(tmpDir, [timerRoom])).toBe(true);
+    const parsed = JSON.parse(readFileSync(join(tmpDir, 'wrangler.jsonc'), 'utf-8'));
+
+    expect(parsed.migrations).toEqual(userMigrations);
+    expect(parsed.durable_objects.bindings).toEqual([
+      { name: 'TIMER_ROOM', class_name: 'TimerRoomDurableObject' },
+    ]);
+  });
+
   it('keeps existing keys of a BOM-prefixed config when adding Durable Objects', () => {
     setup(
       'wrangler.jsonc',

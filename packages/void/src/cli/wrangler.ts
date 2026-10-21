@@ -239,7 +239,11 @@ export function hasDurableObjectSqliteMigration(
   migrations: Array<DurableObjectMigration>,
   className: string,
 ): boolean {
-  return migrations.some((migration) => migration.new_sqlite_classes?.includes(className));
+  return migrations.some(
+    (migration) =>
+      migration.new_sqlite_classes?.includes(className) ||
+      migration.renamed_classes?.some((rename) => rename.to === className),
+  );
 }
 
 export function nextDurableObjectMigrationTag(

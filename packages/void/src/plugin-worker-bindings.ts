@@ -366,11 +366,8 @@ export function mergeWorkerBindings(
     const migrationAdditions = durableObjects
       .filter(
         (module) =>
-          !existingMigrations.some(
-            (migration) =>
-              migration.tag === module.migrationTag ||
-              migration.new_sqlite_classes?.includes(module.className),
-          ),
+          !existingMigrations.some((migration) => migration.tag === module.migrationTag) &&
+          !hasDurableObjectSqliteMigration(existingMigrations, module.className),
       )
       .map((module) => ({
         tag: module.migrationTag,
